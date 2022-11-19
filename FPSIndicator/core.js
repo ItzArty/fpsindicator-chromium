@@ -21,6 +21,63 @@ const $n = ( name, appendTo, additionalProps, innerHTML ) => {
 
 }
 
+const formatMs = ( ms ) => {
+
+	let seconds = 0;
+	let minutes = 0;
+
+	if( ms / 1000 >= 1 ) {
+
+		let add = Math.floor( ms / 1000 );
+
+		seconds += add;
+
+		ms = ms - ( 1000 * add );
+
+	}
+
+	if( seconds / 60 >= 1 ) {
+
+		let add = Math.floor( seconds / 60 );
+
+		minutes += add;
+
+		seconds = seconds - ( 60 * add );
+
+	}
+
+	if( minutes / 60 >= 1 ) {
+
+		let add = Math.floor( minutes / 60 );
+
+		hours += add;
+
+		minutes = minutes - ( 60 * add );
+
+	}
+
+	let formatted = "";
+
+	if( minutes > 0 ) {
+
+		formatted += minutes + ":";
+
+	}
+
+	if( seconds > 0 ) {
+
+		formatted += seconds + ":" + Math.round( ms );
+
+	} else {
+
+		formatted += ms.toFixed( 2 );
+
+	}
+
+	return formatted;
+
+}
+
 let enabled = false;
 let details = false;
 let frames = 0;
@@ -29,11 +86,27 @@ let fpsCaptures = 0;
 let averageFps = 0;
 let highestFPS = 0;
 let lowestFPS = Infinity;
+let FTCaptures = 0;
+let averageFT = 0;
+let highestFT = 0;
+let lowestFT = Infinity;
 const fpsHistory = [ ];
 
 let elementCollection = { };
 
 elementCollection.container = $n( "FPSIndicator", document.body );
+
+chrome.storage.local.get( [ "positions" ], ( data ) => {
+
+	if( typeof data.positions[ document.location.hostname ] == "object" ) {
+
+		elementCollection.container.style.top = data.positions[ document.location.hostname ].y + "px";
+		elementCollection.container.style.left = data.positions[ document.location.hostname ].x + "px";
+
+	}
+
+} );
+
 elementCollection.dragOverlay = $n( "dragOverlay", elementCollection.container, { }, "<img src=\"" + chrome.runtime.getURL( "FPSIndicator/drag.png" ) + "\" />" );
 elementCollection.overview = $n( "div", elementCollection.container, { class: "overview" } );
 elementCollection.currentFPS = $n( "span", elementCollection.overview );
@@ -42,17 +115,32 @@ $n( "text", elementCollection.currentFPS, { }, "FPS" );
 
 elementCollection.detailed = $n( "div", elementCollection.container, { class: "detailed" } );
 
-elementCollection.highestFPS = $n( "div", elementCollection.detailed );
-elementCollection.highestFPSText = $n( "ht", elementCollection.highestFPS, { }, "-" );
-$n( "text", elementCollection.highestFPS, { }, "HIGH" );
+elementCollection.FPSStats = $n( "stats", elementCollection.detailed );
+elementCollection.FTStats = $n( "stats", elementCollection.detailed );
 
-elementCollection.averageFPS = $n( "div", elementCollection.detailed );
-elementCollection.averageFPSText = $n( "ht", elementCollection.averageFPS, { }, "-" );
-$n( "text", elementCollection.averageFPS, { }, "AVG" );
+elementCollection.highestFPS = $n( "div", elementCollection.FPSStats );
+elementCollection.highestFPSText = $n( "ht", elementCollection.highestFPS, { class: "fps" }, "-" );
+$n( "text", elementCollection.highestFPS, { }, "H. FPS" );
 
-elementCollection.lowestFPS = $n( "div", elementCollection.detailed );
-elementCollection.lowestFPSText = $n( "ht", elementCollection.lowestFPS, { }, "-" );
-$n( "text", elementCollection.lowestFPS, { }, "LOW" );
+elementCollection.averageFPS = $n( "div", elementCollection.FPSStats );
+elementCollection.averageFPSText = $n( "ht", elementCollection.averageFPS, { class: "fps" }, "-" );
+$n( "text", elementCollection.averageFPS, { }, "A. FPS" );
+
+elementCollection.lowestFPS = $n( "div", elementCollection.FPSStats );
+elementCollection.lowestFPSText = $n( "ht", elementCollection.lowestFPS, { class: "fps" }, "-" );
+$n( "text", elementCollection.lowestFPS, { }, "L. FPS" );
+
+elementCollection.lowestFT = $n( "div", elementCollection.FTStats );
+elementCollection.lowestFTText = $n( "ht", elementCollection.lowestFT, { class: "ft" }, "-" );
+$n( "text", elementCollection.lowestFT, { }, "L. FT" );
+
+elementCollection.averageFT = $n( "div", elementCollection.FTStats );
+elementCollection.averageFTText = $n( "ht", elementCollection.averageFT, { class: "ft" }, "-" );
+$n( "text", elementCollection.averageFT, { }, "A. FT" );
+
+elementCollection.highestFT = $n( "div", elementCollection.FTStats );
+elementCollection.highestFTText = $n( "ht", elementCollection.highestFT, { class: "ft" }, "-" );
+$n( "text", elementCollection.highestFT, { }, "H. FT" );
 
 elementCollection.canvas = $n( "canvas", elementCollection.overview );
 
@@ -62,11 +150,26 @@ const context = canvas.getContext( "2d" );
 context.strokeStyle = "#FFFFFF";
 context.lineWidth = 2;
 
+let prev = performance.now( );
+
 const loop = ( ) => {
+
+	let now = performance.now( );
+
+	let delta = now - prev;
+
+	FTCaptures++;
+
+	averageFT = ( averageFT + delta ) / 2;
+
+	if( delta < lowestFT ) lowestFT = delta;
+	if( delta > highestFT ) highestFT = delta;
 
 	frames++;
 
 	if( enabled ) requestAnimationFrame( loop );
+
+	prev = now;
 
 }
 
@@ -106,6 +209,10 @@ setInterval( ( ) => {
 
 	}
 
+	elementCollection.lowestFTText.innerText = formatMs( lowestFT );
+	elementCollection.highestFTText.innerText = formatMs( highestFT );
+	elementCollection.averageFTText.innerText = formatMs( averageFT );
+
 	const fpsMax = Math.max( ...fpsHistory );
 	const fpsMin = Math.min( ...fpsHistory );
 
@@ -125,6 +232,8 @@ setInterval( ( ) => {
 const toggleIndicator = ( ) => {
 
 	enabled = !enabled;
+
+	prev = performance.now( );
 
 	if( enabled ) {
 
@@ -217,8 +326,11 @@ elementCollection.dragOverlay.onmousedown = ( e ) => {
 		dragX2 = e.clientX;
 		dragY2 = e.clientY;
 
-		elementCollection.container.style.top = ( elementCollection.container.offsetTop - dragY1 ) + "px";
-		elementCollection.container.style.left = ( elementCollection.container.offsetLeft - dragX1 ) + "px";
+		let cY = elementCollection.container.offsetTop - dragY1;
+		let cX = elementCollection.container.offsetLeft - dragX1;
+
+		if( cY + elementCollection.container.scrollHeight < window.innerHeight && cY > 0 ) elementCollection.container.style.top = cY + "px";
+		if( cX + elementCollection.container.scrollWidth < window.innerWidth && cX > 0 ) elementCollection.container.style.left = cX + "px";
 
 	}
 
@@ -226,8 +338,41 @@ elementCollection.dragOverlay.onmousedown = ( e ) => {
 
 	document.addEventListener( "mouseup", ( e ) => {
 
-		dragFunction = ( ) => { };
+		dragFunction = ( ) => { }
+
+		chrome.storage.local.get( "positions", ( data ) => {
+
+			if( typeof data.positions != "object" ) data.positions = { };
+
+			data.positions[ document.location.hostname ] = {
+
+				x: elementCollection.container.offsetLeft,
+				y: elementCollection.container.offsetTop
+
+			}
+
+			chrome.storage.local.set( { positions: data.positions }, ( ) => {
+
+				// Saved.
+
+			} );
+
+		} );
 
 	} );
 
 }
+
+chrome.runtime.onMessage.addListener( ( request, sender, callback ) => {
+
+	switch( request.message ) {
+
+		case "toggle":
+
+			toggleIndicator( );
+
+			break;
+
+	}
+
+} );
