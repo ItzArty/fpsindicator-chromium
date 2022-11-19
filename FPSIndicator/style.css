@@ -89,8 +89,13 @@ fpsindicator > .detailed {
 	background-color: rgba( 255, 255, 255, 0.025 );
 	transition: 0.25s;
 	overflow: hidden;
+	flex-direction: column;
 }
 fpsindicator > .detailed.active {
+	height: 7rem;
+}
+fpsindicator > .detailed > stats {
+	display: flex;
 	height: 3.5rem;
 }
 fpsindicator .detailed ht {
@@ -105,7 +110,7 @@ fpsindicator > dragOverlay > img {
 	filter: invert( 1 );
 	max-height: 1.75rem;
 }
-fpsindicator > .detailed > div {
+fpsindicator .detailed div {
 	display: flex;
 	justify-content: center;
 	align-items: center;
