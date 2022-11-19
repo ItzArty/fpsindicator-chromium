@@ -1,0 +1,114 @@
+:root {
+	--zIndex: 2147483646;
+}
+fpsindicator {
+	display: none;
+	position: fixed;
+	top: 1rem;
+	left: 1rem;
+	border-radius: 8px;
+	background-color: rgba( 0, 0, 0, 0.25 );
+	backdrop-filter: blur( 16px );
+	color: #fff;
+	font-family: sans-serif;
+	z-index: var( --zIndex );
+	overflow: hidden;
+	box-shadow: 0px 0px 15px rgba( 0, 0, 0, 0.35 );
+	flex-direction: column;
+	user-select: none;
+}
+fpsindicator.active {
+	display: flex;
+}
+fpsindicator > dragOverlay {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	justify-content: center;
+	align-items: center;
+	display: none;
+	cursor: move;
+	z-index: 2147483647;
+	background-color: rgba( 255, 255, 255, 0.035 );
+	backdrop-filter: blur( 16px );
+	transition: 0.15s;
+}
+fpsindicator > dragOverlay:hover {
+	background-color: rgba( 255, 255, 255, 0.075 );
+}
+fpsindicator > dragOverlay.active {
+	display: flex;
+}
+fpsindicator:has( dragOverlay.active ) {
+	backdrop-filter: unset;
+	border: 2px dashed #fff;
+	box-shadow: 0px 0px 15px rgba( 0, 0, 0, 0.75 );
+}
+fpsindicator > .overview {
+	display: block;
+	position: relative;
+	height: 5rem;
+	width: 20rem;
+}
+fpsindicator > .overview > span {
+	display: inline-flex;
+	position: relative;
+	width: 25%;
+	height: 100%;
+	justify-content: center;
+	align-items: center;
+	vertical-align: top;
+	flex-direction: column;
+	text-align: center;
+	grid-gap: 0.25rem;
+}
+fpsindicator > .overview > canvas {
+	display: inline-flex;
+	width: calc( 75% - 0.85rem );
+	height: 75%;
+	margin: 3.125% 0px;
+	border-radius: 8px;
+	overflow: hidden;
+	background-color: rgba( 0, 0, 0, 0.15 );
+}
+fpsindicator ht {
+	display: block;
+	font-size: 1.6rem;
+	line-height: 1.61rem;
+}
+fpsindicator text {
+	display: block;
+	font-size: 0.85rem;
+	line-height: 0.86rem;
+}
+fpsindicator > .detailed {
+	display: flex;
+	height: 0px;
+	background-color: rgba( 255, 255, 255, 0.025 );
+	transition: 0.25s;
+	overflow: hidden;
+}
+fpsindicator > .detailed.active {
+	height: 3.5rem;
+}
+fpsindicator .detailed ht {
+	font-size: 1.3rem;
+	line-height: 1.31rem;
+}
+fpsindicator .detailed text {
+	font-size: 0.55rem;
+	line-height: 0.56rem;
+}
+fpsindicator > dragOverlay > img {
+	filter: invert( 1 );
+	max-height: 1.75rem;
+}
+fpsindicator > .detailed > div {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	flex: 1;
+}

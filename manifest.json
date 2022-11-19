@@ -1,0 +1,22 @@
+{
+
+	"manifest_version": 3,
+	"name": "FPS Indicator",
+	"author": "Arty",
+	"description": "Simple chromium extension for FPS measurement",
+	"version": "1.0.0",
+	"content_scripts": [
+		{
+			"css": [ "FPSIndicator/style.css" ],
+			"js": [ "FPSIndicator/core.js" ],
+			"matches": [ "<all_urls>" ]
+		}
+	],
+	"web_accessible_resources": [
+		{
+			"resources": [ "FPSIndicator/drag.png" ],
+			"matches": [ "<all_urls>" ]
+		}
+	]
+
+}
