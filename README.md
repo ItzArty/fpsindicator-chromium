@@ -36,7 +36,7 @@ Once you find your comfortable spot, simply stop holding `Control` and the windo
 
 In the future you may expect these features
 
-- Frametime (delta) measurements
+- ~~Frametime (delta) measurements~~ Upcoming commit & release (v1.1)
 - Per-website FPS statistics scrapper
 - Better design
-- Saving window positions
+- ~~Saving window positions~~ Upcoming commit & release (v1.1)
