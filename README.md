@@ -41,3 +41,4 @@ In the future you may expect these features
 - Better design
 - ~~Saving window positions~~ Upcoming commit & release (v1.1)
 - Create an icon/a logo
+- ~~Implement drag safe-area~~ Upcoming commit & release (v1.1)
