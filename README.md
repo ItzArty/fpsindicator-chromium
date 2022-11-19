@@ -40,3 +40,4 @@ In the future you may expect these features
 - Per-website FPS statistics scrapper
 - Better design
 - ~~Saving window positions~~ Upcoming commit & release (v1.1)
+- Create an icon/a logo
